@@ -1,0 +1,229 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <title>Nudle</title>
+
+    <!-- Tailwindcss -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Babylon.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+    <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
+    <script src="https://cdn.babylonjs.com/recast.js"></script>
+    <script src="https://cdn.babylonjs.com/ammo.js"></script>
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.babylonjs.com/cannon.js"></script>
+    <script src="https://cdn.babylonjs.com/Oimo.js"></script>
+    <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+    <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+    <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="https://cdn.babylonjs.com/addons/babylonjs.addons.min.js"></script>
+    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+
+    <!-- Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js/+esm",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    </style>
+
+    <style>
+        html,
+        body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        #canvasZone {
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* sidebar styling */
+        ._sidebar ._subtitles::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ._sidebar ._subtitles::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            /* dark track */
+        }
+
+        ._sidebar ._subtitles::-webkit-scrollbar-thumb {
+            background: #8c8c8c;
+            /* light gray thumb */
+            border-radius: 20px;
+            /* soft/rounded */
+            border: 1px solid #2d2d2d;
+            /* makes it look inset */
+        }
+
+        .scroll-container {
+            direction: rtl;
+            /* scrollbar moves to left */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
+    <script type="module" src="static/js/Babylon.js"></script>
+
+    <!-- start lesson container -->
+    <div
+        class="_startpanel absolute top-[calc(50%-200px)] left-[calc(50%-150px)] flex gap-5 h-[400px] w-[300px] flex-col rounded-xl bg-gray-600 py-10 px-6 shadow-xl">
+        <div class="flex w-[100%] items-center justify-center">
+            <img src="static/media/images/CoverImage.png" class="w-[200px] rounded-xl" />
+        </div>
+
+        <div class="_description text-[12px] text-white font-semibold">This course will outline the basics of Goat
+            Anatomy. It will immersively take you through different components of the Goat's biology such as the lungs,
+            hearts, skeleton, etc.</div>
+
+        <div class="_startbutton flex justify-center items-center w-[100%]">
+            <div
+                class="flex justify-center items-center w-[200px] bg-blue-500 text-white font-bold rounded-full h-8 shadow-xl cursor-pointer">
+                Start Lesson
+            </div>
+        </div>
+    </div>
+
+    <!-- end lesson container -->
+    <div
+        class="_endpanel absolute top-[calc(50%-200px)] left-[calc(50%-150px)] hidden gap-5 h-[400px] w-[300px] flex-col rounded-xl bg-gray-600 py-10 px-6 shadow-xl">
+        <div class="flex w-[100%] items-center justify-center">
+            <img src="static/media/images/CoverImage.png" class="w-[200px] rounded-xl" />
+        </div>
+
+        <div class="_description text-[12px] text-white font-semibold">You have completed the goat anatomy course. Now
+            you are familiar with all the basics of a goat's internal system!</div>
+
+        <div class="_endbutton flex justify-center items-center w-[100%]">
+            <div
+                class="flex justify-center items-center w-[200px] bg-blue-500 text-white font-bold rounded-full h-8 shadow-xl cursor-pointer">
+                End Lesson
+            </div>
+        </div>
+    </div>
+
+    <!-- sidebar -->
+    <div class="_sidebar hidden bg-[#060606] opacity-[85%] w-[90%] md:w-[350px] md:top-[5vh] min-h-[80vh] md:h-[90vh] mx-4 fixed rounded-2xl p-4"
+        style="bottom:-2vh">
+        <div
+            class="_minimizebutton p-[13px] flex justify-center absolute top-0 left-0 rounded-[15px] shadow-[0px_4px_4px_1px_rgba(95,206,254,0.5)] transform transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer">
+            <img src="https://i.imgur.com/0Tm3pRM.png" class="w-8 md:w-4" />
+        </div>
+        <div class="_body flex flex-col gap-4 md:gap-6 justify-center items-center">
+            <div class="_image w-[60%] md:w-[50%] border-b flex flex-col justify-center items-center">
+                <div id="avatar" class="w-[250px] h-[250px]"></div>
+                <div id="loading" class="text-white text-sm font-bold"></div>
+            </div>
+            <div
+                class="_subtitles text-white overflow-y-scroll h-24 text-[13px] md:text-[11px] font-light px-4 [direction:rtl]">
+                <div class="_textcontent [direction:ltr]">
+                    Veins are the blood vessels that carry blood toward the heart. Most veins transport deoxygenated
+                    blood
+                    from the body back into the right atrium, where it can be sent to the lungs for oxygen. The only
+                    exception is the pulmonary veins, which carry oxygenated blood from the lungs to the left atrium.
+                    Veins
+                    also have valves that prevent blood from flowing backward...
+                </div>
+            </div>
+
+            <div class="_textentry mt-2 w-[100%] text-white text-[12px] md:text-[10px]">
+                <input type="text"
+                    class="border border-[#878080] bg-[#060606] w-[100%] rounded-full h-[40px] md:h-[30px] p-3"
+                    placeholder="Ask anything" />
+            </div>
+
+            <div class="_interactionpanel flex gap-8 justify-center items-center w-[100%] h-16 md:mt-2">
+                <div
+                    class="w-16 h-12 md:w-12 md:h-8 shadow-[0px_4px_4px_1px_rgba(95,206,254,0.5)] rounded-2xl flex justify-center items-center transform transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer">
+                    <div class="material-icons text-[26px] md:text-[20px] text-white">
+                        view_in_ar
+                    </div>
+                </div>
+                <div
+                    class="bg-[url('https://i.imgur.com/LEF7qHR.gif')] rounded-full h-20 w-20 md:h-16 md:w-16 flex justify-center items-center transform transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer">
+                    <div
+                        class="flex items-center justify-center gap-1 md:gap-0.5 bg-[#151414] h-16 w-16 md:h-14 md:w-14 rounded-full">
+                        <div class="border border-white w-1 h-4 rounded-full bg-white transform md:scale-[0.8]"></div>
+                        <div class="border border-white w-1 h-6 rounded-full bg-white transform md:scale-[0.8]"></div>
+                        <div class="border border-white w-1 h-8 rounded-full bg-white transform md:scale-[0.8]"></div>
+                        <div class="border border-white w-1 h-6 rounded-full bg-white transform md:scale-[0.8]"></div>
+                        <div class="border border-white w-1 h-4 rounded-full bg-white transform md:scale-[0.8]"></div>
+                    </div>
+                </div>
+                <div
+                    class="w-16 h-12 md:w-12 md:h-8 shadow-[0px_4px_4px_1px_rgba(95,206,254,0.5)] rounded-2xl flex justify-center items-center transform transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer">
+                    <div class="material-icons text-[26px] md:text-[20px] text-white">
+                        back_hand
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- navigation section-->
+        <div class="_navigator fixed bottom-6 right-6 hidden flex-col items-center space-y-2">
+
+            <!-- Top row (left + right buttons) -->
+            <div class="flex space-x-2">
+                <button class="w-10 h-10 bg-[#3a3a3a] rounded-xl flex items-center justify-center text-white">
+                    <div class="_left material-icons">arrow_left</div>
+                </button>
+
+                <button class="w-10 h-10 bg-[#3a3a3a] rounded-xl flex items-center justify-center text-white">
+                    <div class="_right material-icons">arrow_right</div>
+                </button>
+            </div>
+
+            <!-- Bottom long button -->
+            <button class="w-20 h-8 bg-[#3a3a3a] rounded-full flex items-center justify-center text-white">
+                <span class="material-icons">control_camera</span>
+            </button>
+
+        </div>
+
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const overlay = document.querySelector('.xr-button-overlay');
+                if (overlay) {
+                    overlay.style.position = "";
+                    // Or overlay.style.display = "none";  // if you want to hide it completely
+                }
+            });
+        </script>
+        <script type="module" src="static/js/threejs/avatar.js"></script>
+
+</body>
+
+</html>
