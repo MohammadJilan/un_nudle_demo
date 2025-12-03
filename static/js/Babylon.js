@@ -80,7 +80,7 @@ class OverviewScene extends BaseState {
             engine.context.root.scaling = new BABYLON.Vector3(1, 1, 1);
 
             // changing position y to be bit lower
-            engine.context.root.position.y = -0.5;
+            engine.context.root.position.y = -1.5;
 
             // sky lighting
             this.light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), engine.context.scene);
@@ -262,6 +262,16 @@ class Slide1Scene extends BaseState {
         this.if5.setPosition(engine.context.root, new BABYLON.Vector3(-0.43876442313194275, 1.1986513137817383, 0.34603428840637207));
         this.if5.set("Rib cage: Curved bones protecting the heart and lungs while allowing respiratory movement.");
 
+        this.animate = () => {
+            skeleton.getObject().animationGroups.forEach(anim => {
+                anim.start(false, 1, 0, 250);
+            });
+        }
+
+        this.animateButton = document.querySelector("._navigator ._animatebutton");
+        this.animateButton.addEventListener("click", this.animate);
+
+
     }
 
     async exit(engine) {
@@ -293,6 +303,10 @@ class Slide1Scene extends BaseState {
         infoBoxes.forEach(ib => {
             ib.dispose();
         });
+
+        // removing animation
+        this.animateButton.removeEventListener("click", this.animate);
+        delete this.animateButton;
     }
 
 }
@@ -321,6 +335,18 @@ class Slide2Scene extends BaseState {
         // setting scaling
         heart.setScaling(0.2);
 
+        // initial heartbeat animation
+        const exclude = [
+            "CameraRootAction",
+            "Heart_OutsideSpliceAction"
+        ];
+
+        heart.getObject().animationGroups.forEach(anim => {
+            if (exclude.includes(anim.name)) return; // skip excluded
+            anim.play(true);
+        });
+
+
         this.lamp = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 5, 0), engine.context.scene);
         this.lamp.intensity = 29;
         this.lamp.range = 10;
@@ -342,6 +368,7 @@ class Slide2Scene extends BaseState {
         this.ground.material = new BABYLON.ShadowOnlyMaterial('shadowOnly', engine.context.scene);
         this.ground.material.activeLight = this.lamp3;
         this.ground.receiveShadows = true;
+        this.ground.parent = engine.context.root;
 
 
         this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.lamp3);
@@ -357,6 +384,16 @@ class Slide2Scene extends BaseState {
         this.if1 = new InfoPoint("orange", "1", engine.context.advancedTexture, engine.context.scene);
         this.if1.setPosition(engine.context.root, new BABYLON.Vector3(0, 2.8976755142211914, -0.5400000214576721));
         this.if1.set("The goat heart is a muscular, four-chambered organ that efficiently pumps blood throughout its body.")
+
+
+        this.animate = () => {
+            let spliceAnim = heart.getObject().animationGroups.find(anim => anim.name === "Heart_OutsideSpliceAction");
+            spliceAnim.goToFrame(600);
+            spliceAnim.start(false, 1, 600, 690);
+        }
+
+        this.animateButton = document.querySelector("._navigator ._animatebutton");
+        this.animateButton.addEventListener("click", this.animate);
 
     }
 
@@ -388,6 +425,10 @@ class Slide2Scene extends BaseState {
 
         this.if1.dispose();
 
+        // removing animation
+        this.animateButton.removeEventListener("click", this.animate);
+        delete this.animateButton;
+
     }
 
 }
@@ -416,6 +457,12 @@ class Slide3Scene extends BaseState {
         stomach.setVisible(true);
         stomach.getRoot().position = new BABYLON.Vector3(0, 5.376912593841553, 0);
 
+        stomach.getObject().meshes.forEach(mesh => {
+            if (mesh.material) {
+                mesh.material.opacityTexture = new BABYLON.Texture("static/media/textures/opacity_map.png", engine.context.scene);
+            }
+        });
+
         // scaling and position;
         stomach.setScaling(0.5);
         stomach.getRoot().position = new BABYLON.Vector3(0, 1.5, 0);
@@ -443,6 +490,7 @@ class Slide3Scene extends BaseState {
         this.ground.material = new BABYLON.ShadowOnlyMaterial('shadowOnly', engine.context.scene);
         this.ground.material.activeLight = this.lamp3;
         this.ground.receiveShadows = true;
+        this.ground.parent = engine.context.root;
 
         this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.lamp3);
         this.shadowGenerator.useBlurExponentialShadowMap = true;
@@ -515,9 +563,14 @@ class Slide4Scene extends BaseState {
         lungs.setScaling(0.2);
         lungs.getRoot().position = new BABYLON.Vector3(0, 1, 0);
 
+
         lungs.getObject().animationGroups.forEach(anim => {
             anim.stop();
         });
+
+        // initial animation
+        const idleAnim = lungs.getObject().animationGroups.find(anim => anim.name === "ArmatureAction")
+        idleAnim.start(true);
 
         this.bulb = new BABYLON.PointLight("lightBulb", new BABYLON.Vector3(2, 3, -2), engine.context.scene);
         this.bulb.position = new BABYLON.Vector3(4.656996250152588, 11.44823932647705, -0.8961555361747742);
@@ -540,6 +593,7 @@ class Slide4Scene extends BaseState {
         this.ground.material = new BABYLON.ShadowOnlyMaterial('shadowOnly', engine.context.scene);
         this.ground.material.activeLight = this.sun;
         this.ground.receiveShadows = true;
+        this.ground.parent = engine.context.root;
 
         this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.sun);
         this.shadowGenerator.useBlurExponentialShadowMap = true;
@@ -557,6 +611,21 @@ class Slide4Scene extends BaseState {
         this.if2 = new InfoPoint("orange", "2", engine.context.advancedTexture, engine.context.scene);
         this.if2.setPosition(engine.context.root, new BABYLON.Vector3(0.8, 2.37, 0.4));
         this.if2.set("Ribcage: The goat ribcage is a flexible bony structure that protects the heart and lungs while allowing breathing movements.");
+
+        this.animate = () => {
+            const exclude = [
+                "ArmatureAction",
+            ];
+
+            lungs.getObject().animationGroups.forEach(anim => {
+                if (exclude.includes(anim.name)) return; // skip excluded
+                anim.goToFrame(430);
+                anim.start(false, 1, 430, 620);
+            });
+        }
+
+        this.animateButton = document.querySelector("._navigator ._animatebutton");
+        this.animateButton.addEventListener("click", this.animate);
 
     }
 
@@ -588,6 +657,10 @@ class Slide4Scene extends BaseState {
 
         this.if1.dispose();
         this.if2.dispose();
+
+        // removing animation
+        this.animateButton.removeEventListener("click", this.animate);
+        delete this.animateButton;
 
     }
 
@@ -642,6 +715,7 @@ class Slide5Scene extends BaseState {
         this.ground.material = new BABYLON.ShadowOnlyMaterial('shadowOnly', engine.context.scene);
         this.ground.material.activeLight = this.sun;
         this.ground.receiveShadows = true;
+        this.ground.parent = engine.context.root;
 
         this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.sun);
         this.shadowGenerator.useBlurExponentialShadowMap = true;
@@ -655,6 +729,17 @@ class Slide5Scene extends BaseState {
         this.if1 = new InfoPoint("pink", "1", engine.context.advancedTexture, engine.context.scene);
         this.if1.setPosition(engine.context.root, new BABYLON.Vector3(0, 0.1437, -0.54));
         this.if1.set("The goat femur is a strong, weight-bearing thigh bone that supports movement and agility.");
+
+
+        // animation button
+        this.animate = () => {
+            let spliceAnim = femur.getObject().animationGroups.find(anim => anim.name === "SplicePieceAction");
+            spliceAnim.goToFrame(450);
+            spliceAnim.start(false, 1, 450, 560);
+        }
+
+        this.animateButton = document.querySelector("._navigator ._animatebutton");
+        this.animateButton.addEventListener("click", this.animate);
 
     }
 
@@ -685,6 +770,10 @@ class Slide5Scene extends BaseState {
         delete this.shadowGenerator;
 
         this.if1.dispose();
+
+        // removing animation
+        this.animateButton.removeEventListener("click", this.animate);
+        delete this.animateButton;
 
     }
 
