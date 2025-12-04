@@ -1320,7 +1320,7 @@ var createScene = async function () {
 
     // =======
     const MANAGER = new FlowEngine({
-        states: [new IntroScene(), new OverviewScene(), new Slide7Scene(), new Slide1Scene(), new Slide2Scene(), new Slide3Scene(), new Slide4Scene(), new Slide5Scene(), new Slide6Scene(), new ConcludeScene(), new ArIntroScene()],
+        states: [new IntroScene(), new OverviewScene(), new Slide1Scene(), new Slide2Scene(), new Slide3Scene(), new Slide4Scene(), new Slide5Scene(), new Slide6Scene(), new Slide7Scene(), new ConcludeScene(), new ArIntroScene()],
         initial: 'Introduction',
         context: {
             advancedTexture: ADVANCEDTEXTURE, xr: XR, babylonEngine: engine,
