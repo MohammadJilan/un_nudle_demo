@@ -46,6 +46,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
     </style>
 
+    <link rel="stylesheet" href="static/css/quiz/style.css">
+
     <style>
         html,
         body {
@@ -90,21 +92,29 @@
             direction: rtl;
             /* scrollbar moves to left */
         }
+
+        /** Adding animations to minimize/maximize logic */
+        ._sidebar {
+            transition: width 0.3s ease, height 0.3s ease, min-height 0.3s ease;
+        }
     </style>
 </head>
 
 <body>
+    <canvas id="quizcanvas"></canvas>
+
     <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
     <script type="module" src="static/js/Babylon.js"></script>
 
     <!-- start lesson container -->
     <div
-        class="_startpanel absolute top-[calc(50%-200px)] left-[calc(50%-150px)] flex gap-5 h-[400px] w-[300px] flex-col rounded-xl bg-gray-600 py-10 px-6 shadow-xl">
+        class="_startpanel absolute top-[calc(50%-200px)] left-[calc(50%-150px)] flex gap-5 h-[400px] w-[300px] flex-col rounded-xl bg-gray-600 py-10 px-6 shadow-xl justify-center items-center">
         <div class="flex w-[100%] items-center justify-center">
-            <img src="static/media/images/CoverImage.png" class="w-[200px] rounded-xl" />
+            <img src="static/media/images/CoverImage.webp" class="w-[200px] rounded-xl" />
         </div>
 
-        <div class="_description text-[12px] text-white font-semibold">This course will outline the basics of Goat
+        <div class="_description text-[12px] text-white font-semibold text-center">This course will outline the basics
+            of Goat
             Anatomy. It will immersively take you through different components of the Goat's biology such as the lungs,
             hearts, skeleton, etc.</div>
 
@@ -118,12 +128,13 @@
 
     <!-- end lesson container -->
     <div
-        class="_endpanel absolute top-[calc(50%-200px)] left-[calc(50%-150px)] hidden gap-5 h-[400px] w-[300px] flex-col rounded-xl bg-gray-600 py-10 px-6 shadow-xl">
+        class="_endpanel absolute top-[calc(50%-200px)] left-[calc(50%-150px)] hidden gap-5 h-[400px] w-[300px] flex-col rounded-xl bg-gray-600 py-10 px-6 shadow-xl justify-center items-center">
         <div class="flex w-[100%] items-center justify-center">
-            <img src="static/media/images/CoverImage.png" class="w-[200px] rounded-xl" />
+            <img src="static/media/images/CoverImage.webp" class="w-[200px] rounded-xl" />
         </div>
 
-        <div class="_description text-[12px] text-white font-semibold">You have completed the goat anatomy course. Now
+        <div class="_description text-[12px] text-white font-semibold text-center">You have completed the goat anatomy
+            course. Now
             you are familiar with all the basics of a goat's internal system!</div>
 
         <div class="_endbutton flex justify-center items-center w-[100%]">
@@ -136,9 +147,9 @@
 
     <!-- sidebar -->
     <div class="_sidebar hidden bg-[#060606] opacity-[85%] w-[90%] md:w-[350px] md:top-[5vh] min-h-[80vh] md:h-[90vh] mx-4 fixed rounded-2xl p-4"
-        style="bottom:-2vh">
+        style="bottom:-2vh" data-state="max">
         <div
-            class="_minimizebutton p-[13px] flex justify-center absolute top-0 left-0 rounded-[15px] shadow-[0px_4px_4px_1px_rgba(95,206,254,0.5)] transform transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer">
+            class="_minimizebutton w-[45px] h-[45px] p-[13px] flex justify-center absolute top-0 left-0 rounded-[15px] shadow-[0px_4px_4px_1px_rgba(95,206,254,0.5)] transform transition-transform duration-300 ease-in-out hover:scale-105 cursor-pointer">
             <img src="https://i.imgur.com/0Tm3pRM.png" class="w-8 md:w-4" />
         </div>
         <div class="_body flex flex-col gap-4 md:gap-6 justify-center items-center">
@@ -190,40 +201,409 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- navigation section-->
-        <div class="_navigator fixed bottom-6 right-6 hidden flex-col items-center space-y-2">
+    <!-- navigation section-->
+    <div class="_navigator fixed bottom-6 right-6 hidden flex-col items-center space-y-2">
 
-            <!-- Top row (left + right buttons) -->
-            <div class="flex space-x-2">
-                <button class="w-10 h-10 bg-[#3a3a3a] rounded-xl flex items-center justify-center text-white">
-                    <div class="_left material-icons">arrow_left</div>
-                </button>
+        <!-- Top row (left + right buttons) -->
+        <div class="flex space-x-2">
+            <button class="w-10 h-10 bg-[#3a3a3a] rounded-xl flex items-center justify-center text-white">
+                <div class="_left material-icons">arrow_left</div>
+            </button>
 
-                <button class="w-10 h-10 bg-[#3a3a3a] rounded-xl flex items-center justify-center text-white">
-                    <div class="_right material-icons">arrow_right</div>
-                </button>
-            </div>
+            <button class="w-10 h-10 bg-[#3a3a3a] rounded-xl flex items-center justify-center text-white">
+                <div class="_right material-icons">arrow_right</div>
+            </button>
+        </div>
 
-            <!-- Bottom long button -->
-            <button
-                class="_animatebutton w-20 h-8 bg-[#3a3a3a] rounded-full flex items-center justify-center text-white">
-                <span class="material-icons">control_camera</span>
+        <!-- Bottom long button -->
+        <button class="_animatebutton w-20 h-8 bg-[#3a3a3a] rounded-full flex items-center justify-center text-white">
+            <span class="material-icons">control_camera</span>
+        </button>
+
+    </div>
+
+    <!-- quiz confirm panel -->
+    <div
+        class="_quizconfirmpanel w-[350px] h-[400px] top-[calc(50%-200px)] left-[calc(50%-175px)] rounded-xl shadow-4xl bg-[#060606] p-8 border border-gray-700 opacity-80 fixed hidden">
+        <div class="text-center mb-6">
+            <p class="text-3xl font-light text-white leading-snug">
+                You are about to begin <br />
+                the final assessment
+            </p>
+            <div class="h-px bg-gray-700 w-1/3 mx-auto my-4"></div>
+        </div>
+
+        <p class="text-xl text-gray-400 text-center mb-10">
+            Ready?
+        </p>
+
+        <div class="flex justify-center space-x-8">
+
+            <button class="flex flex-col items-center group">
+                <div
+                    class="_yesbutton p-4 rounded-full border-2 border-green-500 bg-gray-900 transition duration-300 group-hover:bg-green-500">
+                    <svg class="w-8 h-8 text-green-500 group-hover:text-white" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <span class="mt-2 text-sm font-semibold text-white">
+                    YES
+                </span>
+            </button>
+
+            <button class="flex flex-col items-center group">
+                <div
+                    class="_nobutton p-4 rounded-full border-2 border-red-400 bg-gray-900 transition duration-300 group-hover:bg-red-400">
+                    <svg class="w-8 h-8 text-red-500 group-hover:text-white" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M6 18L18 6">
+                        </path>
+                    </svg>
+
+
+                </div>
+                <span class="mt-2 text-sm font-semibold text-white">
+                    NO
+                </span>
             </button>
 
         </div>
+    </div>
+
+    <!-- quiz panel -->
+    <div
+        class="_quizpanel hidden justify-center items-center flex-col bg-[#3b3b53] p-8 rounded-xl shadow-2xl w-full max-w-sm border border-gray-700 fixed bottom-[50px] left-[50%] translate-x-[-50%]">
+
+        <p class="text-white text-lg font-medium text-center mb-6">
+            Which bone protects a goat's brain?
+        </p>
+
+        <button id="quizbutton" class="ready">
+
+            <div class="message submitMessage">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 12.2">
+                    <polyline stroke="currentColor" points="2,7.1 6.5,11.1 11,7.1 " />
+                    <line stroke="currentColor" x1="6.5" y1="1.2" x2="6.5" y2="10.3" />
+                </svg> <span class="button-text text-white">Submit</span>
+            </div>
+
+            <div class="message loadingMessage">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 17">
+                    <circle class="loadingCircle" cx="2.2" cy="10" r="1.6" />
+                    <circle class="loadingCircle" cx="9.5" cy="10" r="1.6" />
+                    <circle class="loadingCircle" cx="16.8" cy="10" r="1.6" />
+                </svg>
+            </div>
+
+            <div class="message successMessage">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="4 8 7 11 12 5" />
+                </svg>
+                <span class="button-text text-white">Success!</span>
+            </div>
+
+            <div class="message failMessage">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" y1="4" x2="12" y2="12" />
+                    <line x1="12" y1="4" x2="4" y2="12" />
+                </svg>
+                <span class="button-text text-white">Try Again</span>
+            </div>
+
+        </button>
+
+    </div>
 
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const overlay = document.querySelector('.xr-button-overlay');
-                if (overlay) {
-                    overlay.style.position = "";
-                    // Or overlay.style.display = "none";  // if you want to hide it completely
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const overlay = document.querySelector('.xr-button-overlay');
+            if (overlay) {
+                overlay.style.position = "";
+            }
+        });
+    </script>
+
+    <script type="module" src="static/js/threejs/avatar.js"></script>
+
+    <script>
+        // ammount to add on each button press
+        const confettiCount = 20
+        const sequinCount = 10
+
+        // "physics" variables
+        const gravityConfetti = 0.3
+        const gravitySequins = 0.55
+        const dragConfetti = 0.075
+        const dragSequins = 0.02
+        const terminalVelocity = 3
+
+        // init other global elements
+        const button = document.getElementById('quizbutton')
+        var disabled = false
+        const canvas = document.getElementById('quizcanvas')
+        const ctx = canvas.getContext('2d')
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        let cx = ctx.canvas.width / 2
+        let cy = ctx.canvas.height / 2
+
+        // add Confetto/Sequin objects to arrays to draw them
+        let confetti = []
+        let sequins = []
+
+        // colors, back side is darker for confetti flipping
+        const colors = [
+            { front: '#7b5cff', back: '#6245e0' }, // Purple
+            { front: '#b3c7ff', back: '#8fa5e5' }, // Light Blue
+            { front: '#5c86ff', back: '#345dd1' }  // Darker Blue
+        ]
+
+        // helper function to pick a random number within a range
+        randomRange = (min, max) => Math.random() * (max - min) + min
+
+        // helper function to get initial velocities for confetti
+        // this weighted spread helps the confetti look more realistic
+        initConfettoVelocity = (xRange, yRange) => {
+            const x = randomRange(xRange[0], xRange[1])
+            const range = yRange[1] - yRange[0] + 1
+            let y = yRange[1] - Math.abs(randomRange(0, range) + randomRange(0, range) - range)
+            if (y >= yRange[1] - 1) {
+                // Occasional confetto goes higher than the max
+                y += (Math.random() < .25) ? randomRange(1, 3) : 0
+            }
+            return { x: x, y: -y }
+        }
+
+        // Confetto Class
+        function Confetto() {
+            // getting button bounds
+            document.querySelector("#quizbutton");
+            const rect = button.getBoundingClientRect();
+            const buttonCenterX = rect.left + rect.width / 2;
+            const buttonCenterY = rect.top + rect.height / 2;
+
+            this.randomModifier = randomRange(0, 99)
+            this.color = colors[Math.floor(randomRange(0, colors.length))]
+            this.dimensions = {
+                x: randomRange(5, 9),
+                y: randomRange(8, 15),
+            }
+            this.position = {
+                x: randomRange(buttonCenterX - rect.width / 4, buttonCenterX + rect.width / 4),
+                y: randomRange(buttonCenterY - rect.height / 2, buttonCenterY + rect.height / 2)
+            }
+            this.rotation = randomRange(0, 2 * Math.PI)
+            this.scale = {
+                x: 1,
+                y: 1,
+            }
+            this.velocity = initConfettoVelocity([-9, 9], [6, 11])
+        }
+        Confetto.prototype.update = function () {
+            // apply forces to velocity
+            this.velocity.x -= this.velocity.x * dragConfetti
+            this.velocity.y = Math.min(this.velocity.y + gravityConfetti, terminalVelocity)
+            this.velocity.x += Math.random() > 0.5 ? Math.random() : -Math.random()
+
+            // set position
+            this.position.x += this.velocity.x
+            this.position.y += this.velocity.y
+
+            // spin confetto by scaling y and set the color, .09 just slows cosine frequency
+            this.scale.y = Math.cos((this.position.y + this.randomModifier) * 0.09)
+        }
+
+        // Sequin Class
+        function Sequin() {
+            this.color = colors[Math.floor(randomRange(0, colors.length))].back,
+                this.radius = randomRange(1, 2),
+                this.position = {
+                    x: randomRange(canvas.width / 2 - button.offsetWidth / 3, canvas.width / 2 + button.offsetWidth / 3),
+                    y: randomRange(canvas.height / 2 + button.offsetHeight / 2 + 8, canvas.height / 2 + (1.5 * button.offsetHeight) - 8),
+                },
+                this.velocity = {
+                    x: randomRange(-6, 6),
+                    y: randomRange(-8, -12)
                 }
-            });
-        </script>
-        <script type="module" src="static/js/threejs/avatar.js"></script>
+        }
+        Sequin.prototype.update = function () {
+            // apply forces to velocity
+            this.velocity.x -= this.velocity.x * dragSequins
+            this.velocity.y = this.velocity.y + gravitySequins
+
+            // set position
+            this.position.x += this.velocity.x
+            this.position.y += this.velocity.y
+        }
+
+        // add elements to arrays to be drawn
+        initBurst = () => {
+            for (let i = 0; i < confettiCount; i++) {
+                confetti.push(new Confetto())
+            }
+            for (let i = 0; i < sequinCount; i++) {
+                sequins.push(new Sequin())
+            }
+        }
+
+        // draws the elements on the canvas
+        render = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            confetti.forEach((confetto, index) => {
+                let width = (confetto.dimensions.x * confetto.scale.x)
+                let height = (confetto.dimensions.y * confetto.scale.y)
+
+                // move canvas to position and rotate
+                ctx.translate(confetto.position.x, confetto.position.y)
+                ctx.rotate(confetto.rotation)
+
+                // update confetto "physics" values
+                confetto.update()
+
+                // get front or back fill color
+                ctx.fillStyle = confetto.scale.y > 0 ? confetto.color.front : confetto.color.back
+
+                // draw confetto
+                ctx.fillRect(-width / 2, -height / 2, width, height)
+
+                // reset transform matrix
+                ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+                // clear rectangle where button cuts off
+                if (confetto.velocity.y < 0) {
+                    ctx.clearRect(canvas.width / 2 - button.offsetWidth / 2, canvas.height / 2 + button.offsetHeight / 2, button.offsetWidth, button.offsetHeight)
+                }
+            })
+
+            sequins.forEach((sequin, index) => {
+                // move canvas to position
+                ctx.translate(sequin.position.x, sequin.position.y)
+
+                // update sequin "physics" values
+                sequin.update()
+
+                // set the color
+                ctx.fillStyle = sequin.color
+
+                // draw sequin
+                ctx.beginPath()
+                ctx.arc(0, 0, sequin.radius, 0, 2 * Math.PI)
+                ctx.fill()
+
+                // reset transform matrix
+                ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+                // clear rectangle where button cuts off
+                if (sequin.velocity.y < 0) {
+                    ctx.clearRect(canvas.width / 2 - button.offsetWidth / 2, canvas.height / 2 + button.offsetHeight / 2, button.offsetWidth, button.offsetHeight)
+                }
+            })
+
+            // remove confetti and sequins that fall off the screen
+            // must be done in seperate loops to avoid noticeable flickering
+            confetti.forEach((confetto, index) => {
+                if (confetto.position.y >= canvas.height) confetti.splice(index, 1)
+            })
+            sequins.forEach((sequin, index) => {
+                if (sequin.position.y >= canvas.height) sequins.splice(index, 1)
+            })
+
+            window.requestAnimationFrame(render)
+        }
+
+        // cycle through button states when clicked
+        successFunc = () => {
+            if (!disabled) {
+                disabled = true
+                // Loading stage
+                button.classList.add('loading')
+                button.classList.remove('ready')
+                setTimeout(() => {
+                    // Completed stage
+                    button.classList.add('complete')
+                    button.classList.remove('loading')
+                    setTimeout(() => {
+                        window.initBurst()
+                        setTimeout(() => {
+                            // Reset button so user can select it again
+                            disabled = false
+                            button.classList.add('ready')
+                            button.classList.remove('complete')
+                        }, 4000)
+                    }, 320)
+                }, 1800)
+            }
+        }
+
+        // cycle through button states when clicked
+        failFunc = () => {
+            if (!disabled) {
+                disabled = true;
+
+                // Loading stage
+                button.classList.add('loading');
+                button.classList.remove('ready');
+
+                setTimeout(() => {
+                    // FAIL stage
+                    button.classList.add('fail');
+                    button.classList.remove('loading');
+
+                    setTimeout(() => {
+
+                        setTimeout(() => {
+                            // Reset button
+                            disabled = false;
+                            button.classList.add('ready');
+                            button.classList.remove('fail');
+                        }, 4000);
+
+                    }, 320);
+
+                }, 1800);
+            }
+        };
+
+        // re-init canvas if the window size changes
+        resizeCanvas = () => {
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+            cx = ctx.canvas.width / 2
+            cy = ctx.canvas.height / 2
+        }
+
+        // resize listenter
+        window.addEventListener('resize', () => {
+            resizeCanvas()
+        })
+
+        // click button on spacebar or return keypress
+        document.querySelector("#quizbutton").addEventListener("click", () => {
+            successFunc()
+        });
+
+        // Set up button text transition timings on page load
+        textElements = button.querySelectorAll('.button-text')
+        textElements.forEach((element) => {
+            characters = element.innerText.split('')
+            let characterHTML = ''
+            characters.forEach((letter, index) => {
+                characterHTML += `<span class="char${index}" style="--d:${index * 30}ms; --dr:${(characters.length - index - 1) * 30}ms;">${letter}</span>`
+            })
+            element.innerHTML = characterHTML
+        })
+
+        // kick off the render loop
+        //window.initBurst()
+        render()
+    </script>
 
 </body>
 

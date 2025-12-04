@@ -262,10 +262,40 @@ class Slide1Scene extends BaseState {
         this.if5.setPosition(engine.context.root, new BABYLON.Vector3(-0.43876442313194275, 1.1986513137817383, 0.34603428840637207));
         this.if5.set("Rib cage: Curved bones protecting the heart and lungs while allowing respiratory movement.");
 
-        this.animate = () => {
+        let playing = false;
+        this.reset = () => {
+            skeleton.stopAllAnimation();
+
             skeleton.getObject().animationGroups.forEach(anim => {
-                anim.start(false, 1, 0, 250);
+                anim.goToFrame(0);
+                anim.start(false, 1, 0, 0);
             });
+
+            engine.context.scene.render();
+
+        }
+
+        let stopAnimate = () => {
+            skeleton.stopAllAnimation();
+
+            skeleton.getObject().animationGroups.forEach(anim => {
+                anim.start(false, 1, 250, 0);
+            });
+
+            playing = false;
+        }
+
+        this.animate = () => {
+            if (!playing) {
+                playing = true;
+
+                skeleton.getObject().animationGroups.forEach(anim => {
+                    anim.start(false, 1, 0, 250);
+                });
+            } else {
+                stopAnimate();
+
+            }
         }
 
         this.animateButton = document.querySelector("._navigator ._animatebutton");
@@ -307,6 +337,8 @@ class Slide1Scene extends BaseState {
         // removing animation
         this.animateButton.removeEventListener("click", this.animate);
         delete this.animateButton;
+
+        this.reset();
     }
 
 }
@@ -386,14 +418,52 @@ class Slide2Scene extends BaseState {
         this.if1.set("The goat heart is a muscular, four-chambered organ that efficiently pumps blood throughout its body.")
 
 
-        this.animate = () => {
+
+        let playing = false;
+        this.reset = () => {
+            heart.stopAllAnimation();
             let spliceAnim = heart.getObject().animationGroups.find(anim => anim.name === "Heart_OutsideSpliceAction");
-            spliceAnim.goToFrame(600);
-            spliceAnim.start(false, 1, 600, 690);
+            spliceAnim.goToFrame(0);
+            spliceAnim.start(false, 1, 0, 0);
+
+            // initial heartbeat animation
+            const exclude = [
+                "CameraRootAction",
+                "Heart_OutsideSpliceAction"
+            ];
+
+            heart.getObject().animationGroups.forEach(anim => {
+                if (exclude.includes(anim.name)) return; // skip excluded
+                anim.play(true);
+            });
+        }
+
+        let stopAnimate = () => {
+            heart.stopAllAnimation();
+            let spliceAnim = heart.getObject().animationGroups.find(anim => anim.name === "Heart_OutsideSpliceAction");
+            spliceAnim.goToFrame(690);
+            spliceAnim.start(false, 1, 690, 600);
+
+            playing = false;
+        }
+
+        this.animate = () => {
+            if (!playing) {
+                let spliceAnim = heart.getObject().animationGroups.find(anim => anim.name === "Heart_OutsideSpliceAction");
+                spliceAnim.goToFrame(600);
+                spliceAnim.start(false, 1, 600, 690);
+                playing = true;
+            } else {
+                stopAnimate();
+            }
+
         }
 
         this.animateButton = document.querySelector("._navigator ._animatebutton");
         this.animateButton.addEventListener("click", this.animate);
+
+
+
 
     }
 
@@ -428,6 +498,8 @@ class Slide2Scene extends BaseState {
         // removing animation
         this.animateButton.removeEventListener("click", this.animate);
         delete this.animateButton;
+
+        this.reset();
 
     }
 
@@ -498,12 +570,84 @@ class Slide3Scene extends BaseState {
         this.shadowGenerator.setDarkness(0.2);
 
         stomach.getObject().meshes.forEach(mesh => {
+            if (mesh.name === "ToTop4.001") return;
             this.shadowGenerator.getShadowMap().renderList.push(mesh);
         });
 
         this.if1 = new InfoPoint("blue", "1", engine.context.advancedTexture, engine.context.scene);
         this.if1.setPosition(engine.context.root, new BABYLON.Vector3(0, 0.1437, -0.54));
         this.if1.set("The goat stomach is a complex, four-chambered organ specialized for fermenting and digesting fibrous plant material.")
+
+        let playing = false;
+
+        this.reset = () => {
+            stomach.stopAllAnimation();
+
+            // deactivating alpha mask
+            const inside = stomach.getObject().meshes.find(mesh => mesh.name === "Open_primitive1");
+            const outside = stomach.getObject().meshes.find(mesh => mesh.name === "Open_primitive0");
+
+            inside.material.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
+            outside.material.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
+
+            inside.material.alpha = 1;
+            outside.material.alpha = 1;
+        }
+
+        let stopAnimate = () => {
+            stomach.stopAllAnimation();
+
+            // deactivating alpha mask
+            const inside = stomach.getObject().meshes.find(mesh => mesh.name === "Open_primitive1");
+            const outside = stomach.getObject().meshes.find(mesh => mesh.name === "Open_primitive0");
+
+            inside.material.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
+            outside.material.transparencyMode = BABYLON.Material.MATERIAL_OPAQUE;
+
+            inside.material.alpha = 1;
+            outside.material.alpha = 1;
+
+            playing = false;
+        }
+
+        // animate button
+        this.animate = () => {
+            if (!playing) {
+                // play animation
+                stomach.playAnimation("Action", true);
+
+                // activating alpha mask
+                const inside = stomach.getObject().meshes.find(mesh => mesh.name === "Open_primitive1");
+                const outside = stomach.getObject().meshes.find(mesh => mesh.name === "Open_primitive0");
+
+                inside.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+                outside.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+
+                outside.material.alpha = 0.2;
+                inside.material.alpha = 0.2;
+
+                playing = true;
+
+                // BACKUP CODE
+                //outside.material.opacityTexture = new BABYLON.Texture("https://i.imgur.com/4s7Wl0o.png", scene);
+                //inside.material.opacityTexture = new BABYLON.Texture("http://i.imgur.com/06LfDgb.png", scene);
+
+                /*outside.material.useAlphaFromDiffuseTexture = true; // if using diffuseTexture with alpha
+                outside.material.opacityTexture = new BABYLON.Texture("http://i.imgur.com/06LfDgb.png", scene);
+                outside.material.opacityTexture.hasAlpha = true;
+                outside.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
+    
+                inside.material.useAlphaFromDiffuseTexture = true; // if using diffuseTexture with alpha
+                inside.material.opacityTexture = new BABYLON.Texture("https://i.imgur.com/4s7Wl0o.png", scene);
+                inside.material.opacityTexture.hasAlpha = true;
+                inside.material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;*/
+            } else {
+                stopAnimate();
+            }
+        }
+
+        this.animateButton = document.querySelector("._navigator ._animatebutton");
+        this.animateButton.addEventListener("click", this.animate);
 
     }
 
@@ -534,6 +678,13 @@ class Slide3Scene extends BaseState {
         delete this.shadowGenerator;
 
         this.if1.dispose();
+
+
+        // removing animation
+        this.animateButton.removeEventListener("click", this.animate);
+        delete this.animateButton;
+
+        this.reset();
 
     }
 
@@ -612,7 +763,9 @@ class Slide4Scene extends BaseState {
         this.if2.setPosition(engine.context.root, new BABYLON.Vector3(0.8, 2.37, 0.4));
         this.if2.set("Ribcage: The goat ribcage is a flexible bony structure that protects the heart and lungs while allowing breathing movements.");
 
-        this.animate = () => {
+        let playing = false;
+
+        this.reset = () => {
             const exclude = [
                 "ArmatureAction",
             ];
@@ -620,8 +773,40 @@ class Slide4Scene extends BaseState {
             lungs.getObject().animationGroups.forEach(anim => {
                 if (exclude.includes(anim.name)) return; // skip excluded
                 anim.goToFrame(430);
-                anim.start(false, 1, 430, 620);
+                anim.start(false, 1, 430, 430);
             });
+        }
+
+        let stopAnimate = () => {
+            const exclude = [
+                "ArmatureAction",
+            ];
+
+            lungs.getObject().animationGroups.forEach(anim => {
+                if (exclude.includes(anim.name)) return; // skip excluded
+                anim.goToFrame(530);
+                anim.start(false, 1, 530, 300);
+            });
+
+            playing = false;
+        }
+
+        this.animate = () => {
+            if (!playing) {
+                const exclude = [
+                    "ArmatureAction",
+                ];
+
+                lungs.getObject().animationGroups.forEach(anim => {
+                    if (exclude.includes(anim.name)) return; // skip excluded
+                    anim.goToFrame(430);
+                    anim.start(false, 1, 430, 620);
+                });
+
+                playing = true;
+            } else {
+                stopAnimate();
+            }
         }
 
         this.animateButton = document.querySelector("._navigator ._animatebutton");
@@ -661,6 +846,8 @@ class Slide4Scene extends BaseState {
         // removing animation
         this.animateButton.removeEventListener("click", this.animate);
         delete this.animateButton;
+
+        this.reset();
 
     }
 
@@ -732,10 +919,32 @@ class Slide5Scene extends BaseState {
 
 
         // animation button
-        this.animate = () => {
+        let playing = false;
+
+        this.reset = () => {
             let spliceAnim = femur.getObject().animationGroups.find(anim => anim.name === "SplicePieceAction");
             spliceAnim.goToFrame(450);
-            spliceAnim.start(false, 1, 450, 560);
+            spliceAnim.start(false, 1, 450, 450);
+        }
+
+        let stopAnimate = () => {
+            let spliceAnim = femur.getObject().animationGroups.find(anim => anim.name === "SplicePieceAction");
+            spliceAnim.goToFrame(560);
+            spliceAnim.start(false, 1, 560, 450);
+
+            playing = false;
+        }
+
+
+        this.animate = () => {
+            if (!playing) {
+                let spliceAnim = femur.getObject().animationGroups.find(anim => anim.name === "SplicePieceAction");
+                spliceAnim.goToFrame(450);
+                spliceAnim.start(false, 1, 450, 560);
+                playing = true;
+            } else {
+                stopAnimate();
+            }
         }
 
         this.animateButton = document.querySelector("._navigator ._animatebutton");
@@ -775,10 +984,205 @@ class Slide5Scene extends BaseState {
         this.animateButton.removeEventListener("click", this.animate);
         delete this.animateButton;
 
+        this.reset();
+
     }
 
 }
 
+class Slide6Scene extends BaseState {
+    constructor() {
+        super('Slide6');
+    }
+
+    async enter(engine) {
+        const quizConfirmPanel = document.querySelector("._quizconfirmpanel");
+        quizConfirmPanel.classList.remove("hidden");
+
+        const yesButton = document.querySelector("._quizconfirmpanel ._yesbutton");
+        const noButton = document.querySelector("._quizconfirmpanel ._nobutton");
+
+        yesButton.addEventListener("click", () => {
+            engine.goTo("Slide7");
+        });
+
+        noButton.addEventListener("click", () => {
+            engine.goTo("Slide5");
+        });
+
+    }
+
+    async exit(engine) {
+        const quizConfirmPanel = document.querySelector("._quizconfirmpanel");
+        quizConfirmPanel.classList.add("hidden");
+    }
+}
+
+
+class Slide7Scene extends BaseState {
+    constructor() {
+        super('Slide7');
+    }
+
+    async enter(engine) {
+        // changing position y to be bit lower
+        engine.context.root.position.y = -0.5;
+
+        // sky lighting
+        this.light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), engine.context.scene);
+        this.light.intensity = 1;
+        this.light.diffuse = new BABYLON.Color3.FromHexString("#E0EB71");
+        this.light.groundColor = new BABYLON.Color3.FromHexString("#694937");
+
+        // enabling skeleton
+        const skeleton = engine.context.models.skeletonquiz;
+        skeleton.setVisible(true);
+
+
+        skeleton.getObject().meshes.forEach(m => {
+            if (m.material && m.material.sheen) {
+                m.material.sheen.isEnabled = true;
+                m.material.sheen.intensity = 1;
+            }
+        });
+
+        // secondary lighting
+        this.sun = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(0, -1, 0), engine.context.scene);
+        this.sun.diffuse = new BABYLON.Color3.White;
+        this.sun.intensity = 9;
+        this.sun.position = new BABYLON.Vector3(-1.8959672089149775e-15, 9.538678169250488, 0)
+
+        // ground
+        this.ground = BABYLON.Mesh.CreatePlane('ground', 1000, engine.context.scene)
+        this.ground.rotation.x = Math.PI / 2
+        this.ground.material = new BABYLON.ShadowOnlyMaterial('shadowOnly', engine.context.scene)
+        this.ground.material.activeLight = this.sun;
+        this.ground.receiveShadows = true;
+        this.ground.parent = engine.context.root;
+
+        // shadows
+        this.shadowGenerator = new BABYLON.ShadowGenerator(1024, this.sun);
+        this.shadowGenerator.useBlurExponentialShadowMap = true;
+        this.shadowGenerator.blurScale = 4;
+        this.shadowGenerator.setDarkness(0.2);
+
+        skeleton.getObject().meshes.forEach(mesh => {
+            this.shadowGenerator.getShadowMap().renderList.push(mesh);
+        });
+
+        // setting parents for lights
+        this.light.parent = skeleton.getRoot();
+        this.sun.parent = skeleton.getRoot();
+
+        // scaling skeletons
+        skeleton.getRoot().scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+        engine.context.models.skeletonfalling.getRoot().scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+        engine.context.models.skeletonwalking.getRoot().scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+
+        // enabling selection
+        let glow = new BABYLON.GlowLayer("glow", engine.context.scene);
+        glow.intensity = 0.6; // slight neon glow
+
+        let groups = {
+            "skull": ["Object_3.001", "Object_119.004"],
+            "frontlegs": ["Object_113.001", "Object_116.001", "Object_120.004", "Object_120.011", "Object_115.001", "Object_112.001"],
+            "backlegs": ["Object_5.001", "Object_13.001", "Object_27.001", "Object_109.001", "Object_111.003"],
+            "ribs": ["Object_71.001", "Object_73.001", "Object_75.001", "Object_77.001", "Object_85.001", "Object_88.001", "Object_92.001", "Object_93.001", "Object_94.001", "Object_96.001", "Object_97.001", "Object_98.001", "Object_99.001", "Object_100.001", "Object_101.001", "Object_102.001", "Object_103.001", "Object_104.001", "Object_105.001", "Object_106.001", "Object_107.001", "Object_108.001"],
+            "spine": ["Object_65.001", "Object_66.001", "Object_67.001", "Object_69.001", "Object_70.001", "Object_72.001", "Object_74.001", "Object_76.001", "Object_78.001", "Object_79.001", "Object_80.001", "Object_81.001", "Object_83.001", "Object_84.001", "Object_86.001", "Object_89.001", "Object_90.001", "Object_91.001", "Object_95.001"]
+        }
+
+        let selectedGroup = "";
+        const originalMaterial = skeleton.getObject().meshes.find(mesh => mesh.name == "Object_9.001").material; // getting it from a mesh not part of the groups since it wont have its material changing.
+
+        let resetAll = () => {
+            skeleton.getObject().meshes.forEach(mesh => {
+                mesh.material = originalMaterial;
+            });
+        }
+
+        engine.context.scene.onPointerObservable.add((pointerInfo) => {
+            if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERPICK) {
+                const pick = pointerInfo.pickInfo;
+                if (pick.hit && pick.pickedMesh) {
+                    let selectedMeshName = pick.pickedMesh.name;
+
+                    // find the group
+                    for (let groupName in groups) {
+                        let arr = groups[groupName];
+                        if (arr.includes(selectedMeshName)) {
+                            // now we have the selected arr
+                            const mat = new BABYLON.StandardMaterial("myMat", engine.context.scene);
+                            mat.emissiveColor = new BABYLON.Color3(1, 0.2, 0.79); // glow tint
+                            selectedGroup = groupName;
+                            resetAll();
+
+                            arr.forEach(name => {
+                                let mesh = skeleton.getObject().meshes.find(mesh => mesh.name === name);
+                                console.log(mesh, name);
+                                mesh.material = mat;
+                            });
+
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+
+        // enabling quiz panel
+        const quizPanel = document.querySelector("._quizpanel");
+        quizPanel.classList.remove("hidden");
+        quizPanel.classList.add("flex");
+
+        // quiz logic
+        let correctAnswer = "skull";
+
+
+        function isCorrect() {
+            let sk = engine.context.models.skeletonwalking.getRoot();
+            skeleton.setVisible(false);
+            sk.setVisible(true);
+            sk.playAnimation("Animation", true);
+        }
+
+        function isWrong() {
+
+        }
+
+        document.querySelector("#quizbutton").addEventListener("click", () => {
+            if (selectedGroup == correctAnswer) {
+                isCorrect();
+            } else {
+                isWrong();
+            }
+        });
+
+
+    }
+
+    async exit(engine) {
+        // hiding skeleton
+        const skeleton = engine.context.models.skeleton;
+        skeleton.setVisible(false);
+
+        // disposing of lights
+        this.light.dispose();
+        this.sun.dispose();
+        this.ground.dispose();
+        this.shadowGenerator.dispose();
+
+        delete this.light;
+        delete this.sun;
+        delete this.ground;
+        delete this.shadowGenerator;
+
+        // disabling quizpanel
+        const quizPanel = document.querySelector("._quizpanel");
+        quizPanel.classList.add("hidden");
+        quizPanel.classList.remove("flex");
+    }
+}
 
 
 class ArIntroScene extends BaseState {
@@ -895,6 +1299,9 @@ var createScene = async function () {
         "stomach": new SceneObject("static/media/models/stomach.glb", scene),
         "skeleton": new SceneObject("static/media/models/skeleton.glb", scene),
         "femur": new SceneObject("static/media/models/femur.glb", scene),
+        "skeletonwalking": new SceneObject("static/media/models/skeletonwalking.glb", scene),
+        "skeletonfalling": new SceneObject("static/media/models/skeletonfalling.glb", scene),
+        "skeletonquiz": new SceneObject("static/media/models/skeletonquiz.glb", scene),
     };
 
     console.log("Loading all scene models...");
@@ -913,7 +1320,7 @@ var createScene = async function () {
 
     // =======
     const MANAGER = new FlowEngine({
-        states: [new IntroScene(), new OverviewScene(), new Slide1Scene(), new Slide2Scene(), new Slide3Scene(), new Slide4Scene(), new Slide5Scene(), new ConcludeScene(), new ArIntroScene()],
+        states: [new IntroScene(), new OverviewScene(), new Slide7Scene(), new Slide1Scene(), new Slide2Scene(), new Slide3Scene(), new Slide4Scene(), new Slide5Scene(), new Slide6Scene(), new ConcludeScene(), new ArIntroScene()],
         initial: 'Introduction',
         context: {
             advancedTexture: ADVANCEDTEXTURE, xr: XR, babylonEngine: engine,
